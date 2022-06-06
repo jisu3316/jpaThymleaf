@@ -4,6 +4,7 @@ import com.example.jpaThymleaf.exception.BoardNotFoundException;
 import com.example.jpaThymleaf.model.Board;
 import com.example.jpaThymleaf.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.util.StringUtils;
 
@@ -59,6 +60,7 @@ class BoardApiController {
                 });
     }
 
+    @Secured("ROLE_ADMIN")
     @DeleteMapping("/boards/{id}")
     void deleteBoard(@PathVariable Long id) {
         repository.deleteById(id);
