@@ -19,6 +19,7 @@ public class User {
     private String password;
     private Boolean enabled;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "user_role",
@@ -32,6 +33,8 @@ public class User {
         this.password = password;
     }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Board> boards = new ArrayList<>();
 }
