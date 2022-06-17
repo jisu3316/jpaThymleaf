@@ -2,9 +2,12 @@ package com.example.jpaThymleaf.controller;
 
 import com.example.jpaThymleaf.exception.UserNotFoundException;
 import com.example.jpaThymleaf.model.Board;
+import com.example.jpaThymleaf.model.QUser;
 import com.example.jpaThymleaf.model.User;
 import com.example.jpaThymleaf.repository.UserRepository;
+import com.querydsl.core.types.Predicate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.util.StringUtils;
 
@@ -13,6 +16,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Slf4j
 class UserApiController {
 
     private final UserRepository repository;
@@ -20,8 +24,24 @@ class UserApiController {
     // Aggregate root
     // tag::get-aggregate-root[]
     @GetMapping("/users")
-    List<User> all() {
-        return repository.findAll();
+    Iterable<User> all(@RequestParam(required = false) String method,@RequestParam(required = false) String text) {
+        Iterable<User> users = null;
+        if ("query".equals(method)) {
+            users = repository.findByUsernameQuery(text);
+        } else  if ("nativeQuery".equals(method)) {
+            users = repository.findByUsernameNativeQuery(text);
+        } else if ("querydsl".equals(method)) {
+            QUser user = QUser.user;
+            Predicate predicate = user.username.contains(text);
+            users = repository.findAll(predicate);
+        } else if ("querydslCustom".equals(method)) {
+            users = repository.findByUsernameCustom(text);
+        } else if ("jdbc".equals(method)) {
+            users = repository.findByUsernameJdbc(text);
+        } else {
+            users = repository.findAll();
+        }
+        return users;
     }
     // end::get-aggregate-root[]
 
